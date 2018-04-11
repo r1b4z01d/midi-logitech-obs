@@ -15,7 +15,7 @@ def turnOnLED(channel,control):
 	msg = mido.Message('control_change', channel=channel, control=control, value=127, time=0)
 	oPort = mido.open_output('BCR2000:BCR2000 MIDI 1 32:0')
 	oPort.send(msg)
-
+#TODO for loop this ish
 def turnOffLEDs():
 	oPort = mido.open_output('BCR2000:BCR2000 MIDI 1 32:0')
 	msg = mido.Message('control_change', channel=7, control=108, value=0, time=0)
@@ -60,7 +60,6 @@ with mido.open_input('BCR2000:BCR2000 MIDI 1 32:0') as port:
 			hotkey('ctrl', 'l')
 			turnOffLEDs()
 			turnOnLED(7,106)
-
 		else:
 			knobData = (knob for knob in knobs if knob["control"] == daMessage[1]).next()
 			param = knobData['param']+str(scale(daMessage[2],0,127,knobData['min'],knobData['max']) )
