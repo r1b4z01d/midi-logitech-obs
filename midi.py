@@ -13,16 +13,18 @@ def scale(OldValue,OldMin,OldMax,NewMin,NewMax):
 
 def turnOnLED(channel,control):
 	msg = mido.Message('control_change', channel=channel, control=control, value=127, time=0)
-	oPort = mido.open_output('BCR2000:BCR2000 MIDI 1 32:0')
+	oPort = mido.open_output('BCR2000:BCR2000 MIDI 1 36:0')
 	oPort.send(msg)
 #TODO for loop this ish
 def turnOffLEDs():
-	oPort = mido.open_output('BCR2000:BCR2000 MIDI 1 32:0')
+	oPort = mido.open_output('BCR2000:BCR2000 MIDI 1 36:0')
 	msg = mido.Message('control_change', channel=7, control=108, value=0, time=0)
 	oPort.send(msg)
 	msg = mido.Message('control_change', channel=7, control=107, value=0, time=0)
 	oPort.send(msg)
 	msg = mido.Message('control_change', channel=7, control=106, value=0, time=0)
+	oPort.send(msg)
+	msg = mido.Message('control_change', channel=7, control=105, value=0, time=0)
 	oPort.send(msg)
 
 cameras = ["/dev/video0","/dev/video1","/dev/video2"]
@@ -44,7 +46,7 @@ for camera in cameras:
 	call(["v4l2-ctl","-d",camera,"-c","focus_auto=0"])
 	call(["v4l2-ctl","-d",camera,"-c","exposure_auto=1"])
 
-with mido.open_input('BCR2000:BCR2000 MIDI 1 32:0') as port:
+with mido.open_input('BCR2000:BCR2000 MIDI 1 36:0') as port:
     for message in port:
 	daMessage = message.bytes()
 	try:
@@ -60,6 +62,10 @@ with mido.open_input('BCR2000:BCR2000 MIDI 1 32:0') as port:
 			hotkey('ctrl', 'l')
 			turnOffLEDs()
 			turnOnLED(7,106)
+		elif daMessage[1] == 105:
+			hotkey('ctrl', 'y')
+			turnOffLEDs()
+			turnOnLED(7,105)
 		else:
 			knobData = (knob for knob in knobs if knob["control"] == daMessage[1]).next()
 			param = knobData['param']+str(scale(daMessage[2],0,127,knobData['min'],knobData['max']) )
